@@ -1,172 +1,112 @@
-## Ubuntu 16.04配置Darknet
+# Ubuntu 16.04配置Darknet
 
-
-
-
-
-### 1. 下载darknet
-
-下载地址：https://github.com/AlexeyAB/darknet
-
-### 2. 安装CMake
+`Ubuntu 18.04`, `Darknet(AlexeyAB)` 
 
 ```
-# 参考
-https://www.cnblogs.com/TOLLA/p/9647279.html
+# 依赖项
+gcc
+g++
+opencv
+cdua+cudnn
+
+darknet
 ```
 
-```
-https://cmake.org/files/
-```
+## 1. 安装依赖项
 
-在上述路径下选择合适的CMake版本
+### 1.1 gcc
 
-我这里选择/v3.14/cmake-3.14.5-Linux-86_64.tar.gz
+安装
 
-下载到Downloads下，解压后；
-
-```
-cd Downloads
-sudo mv cmake-3.14.5-Linux-86_64 /opt/
+```bash
+sudo apt install gcc
 ```
 
-配置~/.bashrc
+查看版本信息
 
-```
-sudo gedit ~/.bashrc
-```
-
-在最后添加
-
-```
-export PATH=/opt/cmake-3.14.5-Linux-x86_64/bin:$PATH
+```bash
+gcc --version
 ```
 
-保存，退出；执行
+### 1.2 g++
 
-```
-source ~/.bashrc
-```
+安装
 
-测试：
-
-```
-cmake --version
+```bash
+sudo apt install g++
 ```
 
-输出
+查看版本
 
-```
-cmake version 3.14.5
-
-CMake suite maintained and supported by Kitware (kitware.com/cmake).
+```bash
+g++ --version
 ```
 
-### 3. CUDA+cuDNN
+### 1.3 opencv
 
-已配置
+安装
 
-### 4. 配置OpenCV
+```bash
+sudo apt-get install libopencv-dev
+```
 
-查看opencv版本
+卸载
+
+```bash
+sudo apt-get autoremove libopencv-dev
+```
+
+查看版本信息
 
 ```bash
 pkg-config --modversion opencv
 ```
 
-#### 4.1 apt-get
+### 1.4 cuda+cudnn
 
-```
-# install
-sudo apt-get install libopencv-dev
+省略
 
-# uninstall
-sudo apt-get autoremove libopencv-dev
-```
-
-```
-/home/louis/Downloads/opencv-2.4.9
-mkdir build
-cd build
-cmake  /home/louis/Downloads/opencv-2.4.9
-make                                          //无尽的等待
-sudo make install
-```
-
-
-
-#### 4.2 源码编译(未完成)
-
-```
-# 官方文档
-https://docs.opencv.org/4.1.0/d7/d9f/tutorial_linux_install.html
-```
-
-##### 4.2.1 安装依赖项
-
-```
-# 检查
-GCC 4.4.x or later
-CMake 2.8.7 or higher
-Git
-```
+## 2. Darknet
 
 ```bash
-sudo apt-get install build-essential
-sudo apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
-sudo apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
+git clone https://github.com/AlexeyAB/darknet.git
 ```
 
-##### 4.2.2 下载
-
-下载源码
+### 2.1 修改Makefile
 
 ```
-https://opencv.org/releases/
+GPU=1
+CUDNN=1
+CUDNN_HALF=1
+OPENCV=1
+AVX=1
+OPENMP=1
+LIBSO=1
+ZED_CAMERA=0
 ```
 
-##### 4.2.3 编译
+### 2.2 编译
 
 ```bash
-cd ~/opencv-4.1.0
-mkdir build
-cd build
-```
-
-```bash
-cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local -D BUILD_TIFF=ON -D BUILD_EXAMPLES=ON -D BUILD_NEW_PYTHON_SUPPORT=ON -D CMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -D CUDA_CUDA_LIBRARY=/usr/local/cuda/lib64/stubs/libcuda.so --WITHFFMPEG …
-```
-
-### 5. 安装Gcc
-
-```
-sudo apt-get install gcc
-```
-
-```
-gcc --version
-```
-
-### 6. 配置Darknet
-
-#### 6.1 修改`darknet/Makefile`文件；
-
-|          |          |
-| -------- | -------- |
-| CUDA =0  | CUDA =1  |
-| CUDNN=0  | CUDNN=1  |
-| OPENCV=0 | OPENCV=1 |
-| AVX=0    | AVX=1    |
-| OPENMP=0 | OPENMP=1 |
-| LIBSO    | 1        |
-
-#### 6.2 编译
-
-执行
-
-```
 cd darknet
-
 make
+```
+
+### 2.3 下载yolov3.weights
+
+```
+https://pjreddie.com/media/files/yolov3.weights
+```
+
+### 2.4 测试
+
+将`yolov3.weights`拷贝到`./darknet`下，执行
+
+```
+cd darknet 
+
+./darknet detector test ./cfg/coco.data ./cfg/yolov3.cfg ./yolov3.weights
+
+./data/dog.jpg
 ```
 
